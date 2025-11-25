@@ -1,17 +1,19 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 
-export function SearchFormSection ( { onSearch, onTextFilter } ) {
+let timeoutId = null;
 
-    const idText = useId();
-    const idTechnology = useId();
-    const idLocation = useId();
-    const idExperienceLevel = useId();
-
+const useSearchForm = (idTechnology, idLocation, idExperienceLevel, idText, onSearch, onTextFilter) => {
+    const [searchText, setSearchText] = useState("");
     const handleSubmit = (event) => {
         event.preventDefault();
-        const formData = new FormData(event.target);
+        
+        const formData = new FormData(event.currentTarget);
+
+        if (event.target.name === idText) {
+            return;
+        }
+
         const filters = {
-            text: formData.get(idText),
             technology: formData.get(idTechnology),
             location: formData.get(idLocation),
             experienceLevel: formData.get(idExperienceLevel),
@@ -22,16 +24,41 @@ export function SearchFormSection ( { onSearch, onTextFilter } ) {
 
     const handleTextChange = (event) => {
         const text = event.target.value;
-        onTextFilter(text);
+        setSearchText(text);
 
+        //Debounceing
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout(() => {
+            onTextFilter(text);
+        }, 500);
     }
+
+    return {
+        searchText, 
+        handleSubmit, 
+        handleTextChange 
+    };
+}
+
+export function SearchFormSection ( { onSearch, onTextFilter } ) {
+
+    const idText = useId();
+    const idTechnology = useId();
+    const idLocation = useId();
+    const idExperienceLevel = useId();
+    const {  
+        handleSubmit, 
+        handleTextChange 
+    } = useSearchForm(idTechnology, idLocation, idExperienceLevel, idText, onSearch, onTextFilter);
 
     return (
         <section className="jobs-search">
         <h1>Encuentra tu próximo trabajo</h1>
         <p>Explora miles de oportunidades en el sector tecnológico.</p>
 
-        <form onSubmit={handleSubmit} id="empleos-search-form" role="search">
+        <form onChange={handleSubmit} id="empleos-search-form" role="search">
             <div className="search-bar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"
@@ -47,7 +74,7 @@ export function SearchFormSection ( { onSearch, onTextFilter } ) {
                     name={idText} 
                     onChange={handleTextChange}
                 />
-                <button type="submit">Buscar</button>
+                
             </div>
 
             <div className="search-filters">

@@ -1,62 +1,15 @@
-import { useState } from "react";
 import { Header } from "./components/Header.jsx";
 import { Footer } from "./components/Footer.jsx";
-import { Pagination } from "./components/Pagination.jsx";
-import { SearchFormSection } from "./components/SearchFormSection.jsx";
-import { JobListings } from "./components/JobListings.jsx";
-import jobsData from "./data.json";
-
-const RESULTS_PER_PAGE = 4;
+import { HomePage } from "./pages/Home.jsx";
+import { SearchPage } from "./pages/Search.jsx";
+import { Route } from "./components/Route.jsx";
 
 function App() {
-  const [filters, setFilters] = useState({ technology: "", location: "", experienceLevel: "" });
-  const [textToFilter, setTextFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const jobsFilteredByFilters = jobsData.filter((job) => {
-    return (
-      (filters.technology === "" || job.data.technology.toLowerCase() === filters.technology.toLowerCase())
-    );
-  });
-
-  const jobsWithTextFilter = textToFilter === "" ? jobsFilteredByFilters : jobsFilteredByFilters.filter((job) => {
-    return job.titulo.toLowerCase().includes(textToFilter.toLowerCase());
-  });
-
-  const totalPages = Math.ceil(jobsWithTextFilter.length / RESULTS_PER_PAGE);
-
-  const pagedResults = jobsWithTextFilter.slice(
-    (currentPage - 1) * RESULTS_PER_PAGE,
-    currentPage * RESULTS_PER_PAGE
-  );
-
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  }
-
-  const handleSearch = (filters) => {
-    setFilters(filters);
-    setCurrentPage(1);
-  }
-
-  const handleTextFilter = (newTextToFilter) => {
-    setTextFilter(newTextToFilter);
-    setCurrentPage(1);
-  }
-
   return (
     <>
       <Header />
-      <main>
-        <SearchFormSection onSearch={handleSearch} onTextFilter={handleTextFilter} />
-
-        <section>
-          <JobListings jobs={pagedResults} />
-
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-        </section>
-      </main>
+      <Route path="/" component={HomePage} />
+      <Route path="/search" component={SearchPage} />
       <Footer />  
     </>
   )
