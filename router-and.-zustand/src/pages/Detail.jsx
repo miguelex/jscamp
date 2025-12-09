@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";   
+import { useState, useEffect} from "react";  
+import { useAuthStore } from "../store/AuthStore.js";
 import { useParams, useNavigate } from "react-router";
 import  snarkdown  from "snarkdown";
 import { Link } from "../components/Link.jsx";
+import { useFavoriteStore } from "../store/favoriteStore.js";
 import styles from "./Detail.module.css";
 
 function JobSection ({ title, content }) {
@@ -54,13 +56,13 @@ function DetailPageHeader ({ job }) {
         </header>
 
         <DetailApplyButton />
-        {/* <DetailFavoriteButton jobId={job.id} /> */}
+        {<DetailFavoriteButton jobId={job.id} /> }
         </>
     )
 }
 
 function DetailApplyButton () {
-    const { isLoggedIn } = true;
+    const { isLoggedIn } = useAuthStore();
 
     return (
         <button disabled={!isLoggedIn} className={styles.applyButton}>
@@ -69,18 +71,19 @@ function DetailApplyButton () {
     )
 }
 
-// function DetailFavoriteButton ({ jobId }) {
-//     const { isFavorite, toggleFavorite } = useFavoritesStore()
+function DetailFavoriteButton ({ jobId }) {
+    const { isFavorite, toogleFavorite } = useFavoriteStore()
 
-//     return (
-//         <button
-//         onClick={() => toggleFavorite(jobId)}
-//         aria-label={isFavorite(jobId) ? 'Remove from favorites' : 'Add to favorites'}
-//         >
-//         {isFavorite(jobId) ? '❤️' : '🤍'}
-//         </button>
-//     )
-// }
+    return (
+        <button
+        onClick={() => toogleFavorite(jobId)}
+        aria-label={isFavorite(jobId) ? 'Remove from favorites' : 'Add to favorites'}
+        >
+        {isFavorite(jobId) ? '❤️' : '🤍'}
+        </button>
+    )
+}
+
 export default function JobDetail() {
     const { jobId } = useParams();
     const navigate = useNavigate();
